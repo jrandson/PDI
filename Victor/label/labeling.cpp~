@@ -1,0 +1,47 @@
+#include <iostream>
+#include <opencv2/opencv.hpp>
+
+using namespace cv;
+using namespace std;
+int main(int argc, char** argv){
+  Mat image, mask;
+  int width, height;
+  int nobjects;
+
+  CvPoint p;
+  image = imread(argv[1],CV_LOAD_IMAGE_GRAYSCALE);
+
+  if(!image.data){
+    std::cout << "imagem nao carregou corretamente\n";
+    return(-1);
+  }
+  width=image.size().width;
+  height=image.size().height;
+
+  p.x=0;
+  p.y=0;
+  int obj_with_hole=0,obj_without_hole=0;
+  // busca objetos com buracos presentes
+  nobjects=0;
+  for(int i=0; i<height; i++){
+    for(int j=0; j<width; j++){      
+	if(image.at<uchar>(i,j) == 255 && i>30 && j>30 && i < height-30 && j < width - 30 ){
+		// achou um objeto
+		nobjects++;
+                if(image.at<uchar>(i+10,j+10) == 0 )
+		obj_with_hole++;
+                else obj_without_hole++;
+		p.x=j;
+		p.y=i;
+		floodFill(image,p,nobjects);  
+	   }
+	}
+  }
+  cout<<nobjects<<endl;
+  cout<<"Objetos sem buracos: "<<obj_without_hole<<endl;
+  cout<<"Objetos com buracos: "<<obj_with_hole<<endl;
+  imshow("image", image);
+  imwrite("labeling.png", image);
+  waitKey();
+  return 0;
+}
