@@ -4,8 +4,10 @@
 using namespace cv;
 using namespace std;
 
+
+
 int main(int argc, char** argv){
-  Mat image;
+  Mat image, imageEq;
   int width, height;
   VideoCapture cap;
   vector<Mat> planes;
@@ -16,7 +18,6 @@ int main(int argc, char** argv){
   bool uniform = true;
   bool acummulate = false;
 
-  Mat histRacu;
 
   cap.open(0);
   
@@ -36,15 +37,24 @@ int main(int argc, char** argv){
   Mat histImgG(histh, histw, CV_8UC3, Scalar(0,0,0));
   Mat histImgB(histh, histw, CV_8UC3, Scalar(0,0,0));
 
-  char* histBWindow = "hist B";
-  char* histRWindow = "hist R";
-  char* histGWindow = "hist G";
-
-
   int aux = 0;
   while(1){
     cap >> image;
+
+    image.copyTo(imageEq);
+
     split (image, planes);
+
+    //------- equalização da imagem -------
+
+    equalizeHist(planes[0],planes[0]);
+    //equalizeHist(planes[1],planes[1]);
+    //equalizeHist(planes[2],planes[2]);
+
+    merge(planes,imageEq);
+
+    //------- fim da equalização da imagem -------
+
     calcHist(&planes[0], 1, 0, Mat(), histR, 1,
              &nbins, &histrange,
              uniform, acummulate);
@@ -55,6 +65,8 @@ int main(int argc, char** argv){
              &nbins, &histrange,
              uniform, acummulate);
 
+
+    // desenha o histograma na imagem original
 
     normalize(histR, histR, 0, histImgR.rows, NORM_MINMAX, -1, Mat());
     normalize(histG, histB, 0, histImgR.rows, NORM_MINMAX, -1, Mat());
@@ -76,32 +88,17 @@ int main(int argc, char** argv){
            Scalar(255, 0, 0), 1, 8, 0);
     }
 
-    //Equalize here
-
-/*
-    cvtColor( histG, histGeq, CV_BGR2GRAY );
-    cvtColor( histR, histReq, CV_BGR2GRAY );
-    cvtColor( histB, histBeq, CV_BGR2GRAY );
-
-    equalizeHist(histG,histGeq);
-    equalizeHist(histR,histReq);
-    equalizeHist(histB,histBeq);
-    */
-    //namedWindow( histGWindow, CV_WINDOW_AUTOSIZE );
-    //namedWindow( histRWindow, CV_WINDOW_AUTOSIZE );
-    //namedWindow( histBWindow, CV_WINDOW_AUTOSIZE );
-
-    //imshow( histGWindow, histGeq);
-    //imshow( histRWindow, histReq);
-    //imshow( histBWindow, histBeq);
-
-
-
     histImgR.copyTo(image(Rect(0, 0       ,nbins, histh)));
     histImgG.copyTo(image(Rect(0, histh   ,nbins, histh)));
     histImgB.copyTo(image(Rect(0, 2*histh ,nbins, histh)));
+
+    // ---- desenha o histograma na imagem original
+
     imshow("image", image);
+    imshow("image equalized", imageEq);
     if(waitKey(30) >= 0) break;
   }
   return 0;
+
 }
+

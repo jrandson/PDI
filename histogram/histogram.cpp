@@ -4,6 +4,8 @@
 using namespace cv;
 using namespace std;
 
+int teste();
+
 int main(int argc, char** argv){
   Mat image;
   int width, height;
@@ -36,6 +38,10 @@ int main(int argc, char** argv){
 
   while(1){
     cap >> image;
+
+
+
+
     split (image, planes);
     calcHist(&planes[0], 1, 0, Mat(), histR, 1,
              &nbins, &histrange,
@@ -73,4 +79,8 @@ int main(int argc, char** argv){
     if(waitKey(30) >= 0) break;
   }
   return 0;
+}
+
+int teste(Mat* image){
+	cout << "isso é um teste";
 }
