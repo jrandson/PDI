@@ -28,7 +28,7 @@ int main(int argc, char** argv){
     for(int j = 0; j < s.height; j++){
         d = sqrt(pow((x - i),2) + pow((y - j),2));
         if(d <= r){
-           image.at<uchar>(i,j) = 256 - image.at<uchar>(i,j);
+           image.at<uchar>(i,j) = 255 - image.at<uchar>(i,j);
         }
     }
   }

@@ -3,6 +3,7 @@
 #include <string>
 using namespace std;
 using namespace cv;
+#include <stdio.h>
 
 int main(int argc, char** argv){
   Mat image;
@@ -16,7 +17,7 @@ int main(int argc, char** argv){
   cout << "informe outro ponto: ";
   cin >> p2x;
   cin >> p2y;
-  cout << "p1: x =" << p1x << "; y =" << p2y << "\n";
+  cout << "p1: x =" << p1x << "; y =" << p1y << "\n";
   cout << "p2: x =" << p2x << "; y =" << p2y << "\n";
 
 
@@ -28,9 +29,10 @@ int main(int argc, char** argv){
   // encontra negatindo da região selecionada
   for(int i  = p1x; i < p2x; i++){
   	for(int j = p1y; j < p2y; j++){
-		image.at<uchar>(i,j) = 256 - image.at<uchar>(i,j);		
+		image.at<uchar>(i,j) = 255 - image.at<uchar>(i,j);		
 	}
   }
+  imwrite("negativo.png",image);
   imshow("image", image);
   waitKey();
 
