@@ -7,11 +7,11 @@ using namespace std;
 
 
 int main(int argc, char** argv){
-  Mat image, imageEq;
+  Mat imageEq;
   int width, height;
   VideoCapture cap;
-  vector<Mat> planes, planesEq;
-  Mat histR, histG, histB, histReq, histGeq, histBeq;
+  vector<Mat> planesEq;
+  Mat histReq, histGeq, histBeq;
   int nbins = 64;
   float range[] = {0, 256};
   const float *histrange = { range };
@@ -33,39 +33,21 @@ int main(int argc, char** argv){
 
   int histw = nbins, histh = nbins/2;
 
-  Mat histImgR(histh, histw, CV_8UC3, Scalar(0,0,0));
-  Mat histImgG(histh, histw, CV_8UC3, Scalar(0,0,0));
-  Mat histImgB(histh, histw, CV_8UC3, Scalar(0,0,0));
-
   Mat histImgR_eq(histh, histw, CV_8UC3, Scalar(0,0,0));
   Mat histImgG_eq(histh, histw, CV_8UC3, Scalar(0,0,0));
   Mat histImgB_eq(histh, histw, CV_8UC3, Scalar(0,0,0));
 
   int aux = 0;
   while(1){
-    cap >> image;
-
-    image.copyTo(imageEq);
-
-    split (image, planes);
+    cap >> imageEq;
     split (imageEq, planesEq);
 
     //------- equalização da imagem -------
-    equalizeHist(planes[0],planes[0]);
-    equalizeHist(planes[1],planes[1]);
-    equalizeHist(planes[2],planes[2]);
-    //------- fim da equalização da imagem -------
 
-    merge(planes,image);  
-    calcHist(&planes[0], 1, 0, Mat(), histR, 1,
-             &nbins, &histrange,
-             uniform, acummulate);
-    calcHist(&planes[1], 1, 0, Mat(), histG, 1,
-             &nbins, &histrange,
-             uniform, acummulate);
-    calcHist(&planes[2], 1, 0, Mat(), histB, 1,
-             &nbins, &histrange,
-             uniform, acummulate);
+    equalizeHist(planesEq[0],planesEq[0]);
+    equalizeHist(planesEq[1],planesEq[1]);
+    equalizeHist(planesEq[2],planesEq[2]);
+    //------- fim da equalização da imagem -------
 
     //Calcula histograma equalizado
 
@@ -80,39 +62,14 @@ int main(int argc, char** argv){
              &nbins, &histrange,
              uniform, acummulate);
 
-    
-    normalize(histR, histR, 0, histImgR.rows, NORM_MINMAX, -1, Mat());
-    normalize(histG, histB, 0, histImgR.rows, NORM_MINMAX, -1, Mat());
-    normalize(histB, histB, 0, histImgR.rows, NORM_MINMAX, -1, Mat());
-
-    //Normaliza equlização
     normalize(histReq, histReq, 0, histImgR_eq.rows, NORM_MINMAX, -1, Mat());
     normalize(histGeq, histBeq, 0, histImgR_eq.rows, NORM_MINMAX, -1, Mat());
     normalize(histBeq, histBeq, 0, histImgR_eq.rows, NORM_MINMAX, -1, Mat());
 
-
-    histImgR.setTo(Scalar(0));
-    histImgG.setTo(Scalar(0));
-    histImgB.setTo(Scalar(0));
-
-    //Eq
     histImgR_eq.setTo(Scalar(0));
     histImgG_eq.setTo(Scalar(0));
     histImgB_eq.setTo(Scalar(0));
-
-    for(int i=0; i<nbins; i++){
-      line(histImgR, Point(i, histh),
-           Point(i, cvRound(histR.at<float>(i))),
-           Scalar(0, 0, 255), 1, 8, 0);
-      line(histImgG, Point(i, histh),
-           Point(i, cvRound(histG.at<float>(i))),
-           Scalar(0, 255, 0), 1, 8, 0);
-      line(histImgB, Point(i, histh),
-           Point(i, cvRound(histB.at<float>(i))),
-           Scalar(255, 0, 0), 1, 8, 0);
-    }
-    
-    //Eq
+  
     for(int i=0; i<nbins; i++){
       line(histImgR_eq, Point(i, histh),
            Point(i, cvRound(histReq.at<float>(i))),
@@ -125,18 +82,11 @@ int main(int argc, char** argv){
            Scalar(255, 0, 0), 1, 8, 0);
     }
 
-    histImgR.copyTo(image(Rect(0, 0       ,nbins, histh)));
-    histImgG.copyTo(image(Rect(0, histh   ,nbins, histh)));
-    histImgB.copyTo(image(Rect(0, 2*histh ,nbins, histh)));
-
-    //Eq
     histImgR_eq.copyTo(imageEq(Rect(0, 0       ,nbins, histh)));
     histImgG_eq.copyTo(imageEq(Rect(0, histh   ,nbins, histh)));
     histImgB_eq.copyTo(imageEq(Rect(0, 2*histh ,nbins, histh)));
 
-
-    // ---- desenha o histograma na imagem original
-    imshow("image", image);
+    imwrite("histogramEquilized.png",imageEq);
     imshow("image equalized", imageEq);
     if(waitKey(30) >= 0) break;
   }
