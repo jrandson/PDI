@@ -35,8 +35,7 @@ int main(int argc, char** argv){
     Se houverem mais de 155 ocorrencias de bolhas a contagem continua, mas a rotulação é iniciada
     Para isso ai invés de passar o valor do contador, passamos o valor do resto da divisão do contador
     por 255
-    */
-    
+    */    
 		p.x=j;
 		p.y=i;
 		floodFill(image,p,(nobjects % 5)+100);

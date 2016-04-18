@@ -7,14 +7,14 @@ using namespace std;
 
 // Para compilar use make pixels
 
-int main(int, char**){
+int main(int argc, char** argv){
   Mat image;
 
-  unsigned char val[3];
+  Vec3b intensity;
 
-  image= imread("bolhas.png",CV_LOAD_IMAGE_GRAYSCALE);
+  image= imread(argv[1],CV_LOAD_IMAGE_GRAYSCALE);
   if(!image.data)
-    cout << "nao abriu bolhas.png" << endl;
+    cout << "nao abriu imagem" << endl;
 
   namedWindow("janela",WINDOW_AUTOSIZE);
 
@@ -29,13 +29,13 @@ int main(int, char**){
 
   image= imread("bolhas.png",CV_LOAD_IMAGE_COLOR);
 
-  val[0] = 0;   //B
-  val[1] = 255;   //G
-  val[2] = 255; //R
+  intensity.val[0] = 100;   //B
+  intensity.val[1] = 94;   //G
+  intensity.val[2] = 180; //R
   
   for(int i=200;i<210;i++){
     for(int j=10;j<200;j++){
-      image.at<Vec3b>(i,j)=val;
+      image.at<Vec3b>(i,j)= intensity;
     }
   }
 
