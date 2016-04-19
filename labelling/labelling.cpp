@@ -25,24 +25,29 @@ int main(int argc, char** argv){
   p.y=0;
 
   // busca objetos com buracos presentes
+  
+  /*
+      Se houverem mais de 155 ocorrencias de bolhas a contagem continua, mas a rotulação é iniciada
+      Para isso ai invés de passar o valor do contador, passamos o valor do resto da divisão do contador
+      por 255
+  */
+
+  // achou um objetonua,
+      
   nobjects=0;
   for(int i=0; i<height; i++){
     for(int j=0; j<width; j++){
       if(image.at<uchar>(i,j) == 255){
-		// achou um objetonua,
-		nobjects++;
-    /*
-    Se houverem mais de 155 ocorrencias de bolhas a contagem continua, mas a rotulação é iniciada
-    Para isso ai invés de passar o valor do contador, passamos o valor do resto da divisão do contador
-    por 255
-    */
-    
-		p.x=j;
-		p.y=i;
-		floodFill(image,p,(nobjects % 5)+100);
-	  }
-	}
+  	
+  		nobjects++;
+      
+  		p.x=j;
+  		p.y=i;
+  		floodFill(image,p,(nobjects % 255));
+  	  }
+	   }
   }
+
   cout << nobjects << " bolhas foram encontradas\n";
   imshow("image", image);
   imwrite("labeling.png", image);
