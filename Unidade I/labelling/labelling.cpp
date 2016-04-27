@@ -38,6 +38,7 @@ int main(int argc, char** argv){
   for(int i=0; i<height; i++){
     for(int j=0; j<width; j++){
       if(image.at<uchar>(i,j) == 255){
+<<<<<<< HEAD:labelling/labelling.cpp
   	
   		nobjects++;
       
@@ -46,6 +47,20 @@ int main(int argc, char** argv){
   		floodFill(image,p,(nobjects % 255));
   	  }
 	   }
+=======
+		// achou um objetonua,
+		nobjects++;
+    /*
+    Se houverem mais de 155 ocorrencias de bolhas a contagem continua, mas a rotulação é iniciada
+    Para isso ai invés de passar o valor do contador, passamos o valor do resto da divisão do contador
+    por 255
+    */    
+		p.x=j;
+		p.y=i;
+		floodFill(image,p,(nobjects % 5)+100);
+	  }
+	}
+>>>>>>> 348106602fe17855361c2e0b65b7216d5e63263a:Unidade I/labelling/labelling.cpp
   }
 
   cout << nobjects << " bolhas foram encontradas\n";
