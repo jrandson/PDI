@@ -12,7 +12,7 @@ char* windowName = "Operações de morfologia";
 int morph_operator = 0;
 
 int const morph_element_max = 2;
-int const morph_operator_max = 3;
+int const morph_operator_max = 4;
 int const kernel_size_max = 21;
 
 Mat src, dst;
@@ -39,9 +39,9 @@ int main(int arg, char** argv){
 
 		//image = imread(argv[1], CV_LOAD_IMAGE_GRAYSCALE);
 
-		createTrackbar("Operações",windowName, &morph_operator,morph_operator_max, morphology_operations);
+		createTrackbar("Erode:0\n Dilate: 1\n Open: 2\n : Close: 3\n Borda: 4\n",windowName, &morph_operator,morph_operator_max, morphology_operations);
 
-		createTrackbar("Elemento",windowName,&morph_element,morph_element_max, morphology_operations);
+		createTrackbar("Quadrado:0 \n Elipse:1 \n Circulo: 1\n",windowName,&morph_element,morph_element_max, morphology_operations);
 
 		createTrackbar("Kernel size", windowName, &morph_size, kernel_size_max, morphology_operations);
 
@@ -70,40 +70,48 @@ void morphology_operations( int, void* )
 
 	switch(morph_operator){
 		case 0: // close, erosão
-			operation = 2;
+			
 			element = getStructuringElement( morph_element, Size( 2*morph_size + 1, 2*morph_size+1 ), 
 					  Point( morph_size, morph_size ) );
 
-			morphologyEx( src, dst, operation, element );
+			//morphologyEx( src, dst, operation, element );
+			erode(src,dst,element);
+
 		break;
 		case 1:  //open, dilatação
-			operation = 3;
+			
 			element = getStructuringElement( morph_element, Size( 2*morph_size + 1, 2*morph_size+1 ), 
 						Point( morph_size, morph_size ) );
 
-			morphologyEx( src, dst, operation, element );
+			//morphologyEx( src, dst, operation, element );
+			dilate(src,dst,element);
+
 		break;			
-		case 2: // erosão -> dilatação
+		case 2: // open
 			operation = 2;
 			element = getStructuringElement( morph_element, Size( 2*morph_size + 1, 2*morph_size+1 ), 
 						Point( morph_size, morph_size ) );
 			morphologyEx( src, dst, operation, element );
 			
-			operation = 3;
-			element = getStructuringElement( morph_element, Size( 2*morph_size + 1, 2*morph_size+1 ), 
-						Point( morph_size, morph_size ) );
-			morphologyEx( src, dst, operation, element );
+
 		break;			
-		case 3: //dilatação -> erosão
+		case 3: //closing
 			operation = 3;
 			element = getStructuringElement( morph_element, Size( 2*morph_size + 1, 2*morph_size+1 ), 
 						Point( morph_size, morph_size ) );
 			morphologyEx( src, dst, operation, element );
-			
-			operation = 2;
+
+		break;
+		case 4: // bordas
+			Mat A,B;
 			element = getStructuringElement( morph_element, Size( 2*morph_size + 1, 2*morph_size+1 ), 
-						Point( morph_size, morph_size ) );
-			morphologyEx( src, dst, operation, element );
+					  Point( morph_size, morph_size ) );
+
+			//morphologyEx( src, dst, operation, element );
+			dilate(src,A,element);
+			erode(src,B,element);
+
+			dst = A-B;
 		break;
 
 	}	
