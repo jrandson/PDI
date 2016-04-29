@@ -1,6 +1,7 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <math.h>
 
 #define RADIUS 20
 
@@ -39,6 +40,12 @@ int main(int , char**){
   Mat image, imagegray, tmp; 
   Mat_<float> realInput, zeros;
   vector<Mat> planos;
+  vector<Mat> planosFreq;
+  char* windowName = "D0";
+
+  int D0 = 5, D0_max = 50;
+  int gamaL,gamaL_max = 20, gamaH,gamaH_max = 20, c, c_max = 20;
+  float D;
 
   // habilita/desabilita ruido
   int noise=0;
@@ -66,6 +73,13 @@ int main(int , char**){
   // informacoes de gravaÃ§Ã£o
   cap >> image;
 
+  namedWindow(windowName, CV_WINDOW_AUTOSIZE);
+  
+  createTrackbar("D0: ",windowName, &D0, D0_max);
+  createTrackbar("Gama H: ",windowName, &gamaH, gamaH_max);
+  createTrackbar("Gama L: ",windowName, &gamaL, gamaL_max);
+  createTrackbar("c: ",windowName, &c, c_max);
+
   // identifica os tamanhos otimos para
   // calculo do FFT
   dft_M = getOptimalDFTSize(image.rows);
@@ -74,7 +88,7 @@ int main(int , char**){
   // realiza o padding da imagem
   copyMakeBorder(image, padded, 0,
                  dft_M - image.rows, 0,
-                 dft_N - image.cols,
+                 dft_N - image.cols, 
                  BORDER_CONSTANT, Scalar::all(0));
 
   // parte imaginaria da matriz complexa (preenchida com zeros)
@@ -90,23 +104,27 @@ int main(int , char**){
   // cria uma matriz temporÃ¡ria para criar as componentes real
   // e imaginaria do filtro ideal
   tmp = Mat(dft_M, dft_N, CV_32F);
-
-  // prepara o filtro passa-baixas ideal
-  for(int i=0; i<dft_M; i++){
-    for(int j=0; j<dft_N; j++){
-      if((i-dft_M/2)*(i-dft_M/2)+(j-dft_N/2)*(j-dft_N/2) < RADIUS*RADIUS){
-        tmp.at<float> (i,j) = 1.0;
-      }
-    }
-  }
+    
 
   // cria a matriz com as componentes do filtro e junta
   // ambas em uma matriz multicanal complexa
-  Mat comps[]= {tmp, tmp};
-  merge(comps, 2, filter);
+  Mat comps[2];
 
   for(;;){
     cap >> image;
+
+    for(int i=0; i<dft_M; i++){
+      for(int j=0; j<dft_N; j++){        
+        
+        D = sqrt(pow(i - dft_M/2,2) + pow(j - dft_N/2,2));
+        tmp.at<float>(i,j) = (gamaH - gamaL)*(1 - exp(-1*c*(pow(D,2)/pow(D0,2)))) + gamaL;
+      }
+    } 
+
+    comps[0]= tmp;
+    comps[1]= tmp;
+    merge(comps, 2, filter);
+
     cvtColor(image, imagegray, CV_BGR2GRAY);
     imshow("original", imagegray);
 
@@ -123,14 +141,24 @@ int main(int , char**){
     realInput = Mat_<float>(padded);
     // insere as duas componentes no array de matrizes
     planos.push_back(realInput);
-    planos.push_back(zeros);
+    planos.push_back(zeros);    
 
     // combina o array de matrizes em uma unica
     // componente complexa
     merge(planos, complexImage);
 
+    for (int i = 0; i < dft_M; i++){
+      for (int j = 0; j  < dft_N;j++){
+        complexImage.at<char>(i,j) = log(complexImage.at<char>(i,j)+1);
+      }
+    } 
+
     // calcula o dft
     dft(complexImage, complexImage);
+
+    /*split(complexImage,planosFreq);
+    imshow("Imagem do dominio da frequencia imaginária",planosFreq[0]);
+    imshow("Imagem do dominio da frequencia real ",planosFreq[1]); */
 
     // realiza a troca de quadrantes
     deslocaDFT(complexImage);
@@ -173,6 +201,12 @@ int main(int , char**){
     // calcula a DFT inversa
     idft(complexImage, complexImage);
 
+    for (int i = 0; i < dft_M; i++){
+      for (int j = 0; j  < dft_N;j++){
+        complexImage.at<char>(i,j) = exp((complexImage.at<char>(i,j)));
+      }
+    }
+
     // limpa o array de planos
     planos.clear();
 
@@ -182,7 +216,7 @@ int main(int , char**){
 
     // normaliza a parte real para exibicao
     normalize(planos[0], planos[0], 0, 1, CV_MINMAX);
-    imshow("filtrada", planos[0]);
+    imshow(windowName, planos[0]);
  
     key = (char) waitKey(10);
     if( key == 27 ) break; // esc pressed!
