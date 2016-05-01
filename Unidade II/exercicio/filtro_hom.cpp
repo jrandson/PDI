@@ -39,6 +39,7 @@ int main(int , char**){
   Mat image, imagegray, tmp; 
   Mat_<float> realInput, zeros;
   vector<Mat> planos;
+  Mat reflect, light;
 
   // habilita/desabilita ruido
   int noise=0;
@@ -100,20 +101,31 @@ int main(int , char**){
     }
   }
 
-  //O filtro homorfico deve ser preparado aqui
+  
+
 
   tmpFiltHom = Mat(dft_M,dft_N,CV_32F);
   
-  // cria a matriz com as componentes do filtro e junta
-  // ambas em uma matriz multicanal complexa
-  Mat comps[]= {tmp, tmp};
-  merge(comps, 2, filter);
-  Mat fi,fr;
+    // cria a matriz com as componentes do filtro e junta
+    // ambas em uma matriz multicanal complexa
+    //aplica ln nas componentes r e i
 
-  for(;;){
-    cap >> image;
-    cvtColor(image, imagegray, CV_BGR2GRAY);
-    imshow("original", imagegray);
+    Mat comps[]= {tmp, tmp};
+    merge(comps, 2, filter);
+    Mat fi,fr;
+
+    for(;;){
+      cap >> image;
+      cvtColor(image, imagegray, CV_BGR2GRAY);
+      imshow("original", imagegray);
+
+      for(i = 0; i < reflect.width; i++){
+        for(j = 0; j < reflect.heigth; j++){
+           reflect.at<int>(i,j) = ln(reflect.at<int>(i,j));
+        }
+      }
+
+      
 
     // realiza o padding da imagem
     copyMakeBorder(imagegray, padded, 0,
