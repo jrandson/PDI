@@ -9,7 +9,7 @@ int main(int argc, char** argv){
   int width, height;
   VideoCapture cap;
   vector<Mat> planes;
-  Mat histR, histG, histB, histAux, histMotion;
+  Mat histR, histG, histB, histAux;
   int nbins = 64;
   float range[] = {0, 256};
   const float *histrange = { range };
@@ -34,8 +34,8 @@ int main(int argc, char** argv){
   Mat histImgG(histh, histw, CV_8UC3, Scalar(0,0,0));
   Mat histImgB(histh, histw, CV_8UC3, Scalar(0,0,0));
   Mat histImgAux(histh, histw, CV_8UC3, Scalar(0,0,0));
-  Mat histImgMotion(histh, histw, CV_8UC3, Scalar(0,0,0));
 
+  float d;
   while(1){
     cap >> image;
     split (image, planes);
@@ -74,41 +74,21 @@ int main(int argc, char** argv){
     imshow("image", image);
 
     cap >> image;
+
     split (image, planes);
     calcHist(&planes[0], 1, 0, Mat(), histAux, 1,
              &nbins, &histrange,
              uniform, acummulate);
-    calcHist(&planes[0], 1, 0, Mat(), histMotion, 1,
-             &nbins, &histrange,
-             uniform, acummulate);
 
-    normalize(histAux, histR, 0, histImgR.rows, NORM_MINMAX, -1, Mat());
-    normalize(histMotion, histR, 0, histImgR.rows, NORM_MINMAX, -1, Mat());
-    for(int i=0;i<nbins;i++){
-    histMotion.at<float>(i) = histAux.at<float>(i) - histR.at<float>(i);
-    cout<<i<<"-->"<<histMotion.at<float>(i)<<endl;
-    }
+    normalize(histAux, histAux, 0, histImgR.rows, NORM_MINMAX, -1, Mat());
 
-    float auxiliar=0,aux2=0;
-    for(int i=0;i<nbins;i++)
-    {
-        auxiliar+=histR.at<float>(i);
-        aux2 +=histAux.at<float>(i);
-    }
-    cout<<"Soma Red: "<<auxiliar<<endl;
-    cout<<"Soma Aux: "<<aux2<<endl;
-    cout<<"Diferença: "<<aux2 - auxiliar<<endl;
-    //if((aux2) <)
-    //sleep(1);
-//    for(int i=0;i<nbins;i++)
-  //  if(histMotion.at<float>(i) > 5000)
-   // cout<<"ALARME ALARME ALARME"<<endl;
-   // sleep(0.5);
+    d = compareHist(histAux, histR,CV_COMP_BHATTACHARYYA);
 
-    //histMotion  = histAux - histR;
+    if(d>0.05 )
+        cout<<"Warning Warning Warning"<<endl;
 
-    //waitKey();
-    //sleep(1);
+    imshow("image1",image);
+
     if(waitKey(30) >= 0) break;
   }
   return 0;
