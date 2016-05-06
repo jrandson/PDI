@@ -32,8 +32,8 @@ void deslocaDFT(Mat& image ){
   // C <-> B
   C.copyTo(tmp);  B.copyTo(C);  tmp.copyTo(B);
 }
-
-int main(int , char**){
+//
+int main(int argc, char** argv){
   VideoCapture cap;   
   Mat imaginaryInput, complexImage, multsp;
   Mat padded, filter, mag;
@@ -65,13 +65,17 @@ int main(int , char**){
   int dft_M, dft_N;
 
   // abre a cÃ¢mera default
-  cap.open(0);
+  
+
+  /*cap.open(0);
   if(!cap.isOpened())
     return -1;
 
   // captura uma imagem para recuperar as
   // informacoes de gravaÃ§Ã£o
-  cap >> image;
+  cap >> image; */
+
+ image = imread( argv[1] );
 
   namedWindow(windowName, CV_WINDOW_AUTOSIZE);
   
@@ -111,11 +115,10 @@ int main(int , char**){
   Mat comps[2];
 
   for(;;){
-    cap >> image;
+    //cap >> image;
 
     for(int i=0; i<dft_M; i++){
-      for(int j=0; j<dft_N; j++){        
-        
+      for(int j=0; j<dft_N; j++){
         D = sqrt(pow(i - dft_M/2,2) + pow(j - dft_N/2,2));
         tmp.at<float>(i,j) = (gamaH - gamaL)*(1 - exp(-1*c*(pow(D,2)/pow(D0,2)))) + gamaL;
       }
@@ -125,8 +128,8 @@ int main(int , char**){
     comps[1]= tmp;
     merge(comps, 2, filter);
 
-    cvtColor(image, imagegray, CV_BGR2GRAY);
-    imshow("original", imagegray);
+    //cvtColor(image, imagegray, CV_BGR2GRAY);
+    imshow("original", image);
 
     // realiza o padding da imagem
     copyMakeBorder(imagegray, padded, 0,
