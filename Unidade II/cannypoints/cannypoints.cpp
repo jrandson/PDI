@@ -35,7 +35,7 @@ void on_trackbar_canny(int, void*){
   int x, y, gray;
 
   vector<int> yrange;
-  vector<int> xrange; 
+  vector<int> xrange;
 
 
   width = image.size().width;
@@ -45,9 +45,9 @@ void on_trackbar_canny(int, void*){
 
   if(step < 1) step = 1;
   if(jitter < 1) jitter = 1;
-  
+
   // aqui esntra o pntilhismo
- 
+
   xrange.resize(height/step);
   yrange.resize(width/step);
 
@@ -59,7 +59,9 @@ void on_trackbar_canny(int, void*){
     yrange[i]= yrange[i]*step+step/2;
   }
 
-  cannyPoints = Mat(height, width, CV_8U, Scalar(255));
+image.copyTo(border);
+
+ // cannyPoints = Mat(height, width, CV_8U, Scalar(255));
 
   random_shuffle(xrange.begin(), xrange.end());
 
@@ -70,7 +72,7 @@ void on_trackbar_canny(int, void*){
       y = j+rand()%(2*jitter)-jitter+1;
 
       gray = border.at<uchar>(x,y);
-      
+
       //usando circulo, mas poderia ser outro elemento
       circle(cannyPoints,
              cv::Point(y,x),
@@ -79,21 +81,21 @@ void on_trackbar_canny(int, void*){
              -1,
              CV_AA);
     }
-  } 
+  }
 
   imshow("cannyPoints", cannyPoints);
-  
+
 }
 
-int main(int argc, char**argv){  
+int main(int argc, char**argv){
 
-  image = imread(argv[1],CV_LOAD_IMAGE_GRAYSCALE);  
+  image = imread(argv[1],CV_LOAD_IMAGE_GRAYSCALE);
 
   //sprintf( TrackbarName, "Threshold inferior", top_slider_max );
 
   namedWindow("cannyPoints",1);
 
-  cvMoveWindow( "cannyPoints", image.cols, 0 );  
+  cvMoveWindow( "cannyPoints", image.cols, 0 );
 
   createTrackbar("Step", "cannyPoints",
                 &top_slider,
@@ -117,9 +119,9 @@ int main(int argc, char**argv){
 
   on_trackbar_canny(top_slider, 0 );
 
- 
-  
-  
+
+
+
   imwrite("cannyPoints.jpg", cannyPoints);
   waitKey();
   return 0;
