@@ -23,7 +23,7 @@ int raio_max = 10;
 
 Mat cannyPoints;
 
-Mat image, border;
+Mat image, cannyImage;
 
 void on_trackbar_canny(int, void*){
 
@@ -38,7 +38,7 @@ void on_trackbar_canny(int, void*){
   width = image.size().width;
   height = image.size().height;
 
-  Canny(image, border, top_slider, 3*top_slider);  
+  Canny(image, cannyImage, top_slider, 3*top_slider);  
 
   if(step < 1) step = 1;
   if(jitter < 1) jitter = 1;
@@ -71,7 +71,7 @@ void on_trackbar_canny(int, void*){
       x = i+rand()%(2*jitter)-jitter+1;
       y = j+rand()%(2*jitter)-jitter+1;
 
-      gray = image.at<uchar>(x,y);
+      gray = cannyImage.at<uchar>(x,y);
 
       val[0] = (int)(image.at<Vec3b>(x,y)[2]);
       val[1] = (int)(image.at<Vec3b>(x,y)[1]);
@@ -93,6 +93,7 @@ void on_trackbar_canny(int, void*){
 int main(int argc, char**argv){  
 
   image = imread(argv[1],CV_LOAD_IMAGE_COLOR);  
+  
   //image = imread(argv[1],CV_LOAD_IMAGE_GRAYSCALE);
 
   //sprintf( TrackbarName, "Threshold inferior", top_slider_max );
