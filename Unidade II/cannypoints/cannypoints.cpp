@@ -33,7 +33,7 @@ void on_trackbar_canny(int, void*){
   Vec3b val;
 
   vector<int> yrange;
-  vector<int> xrange; 
+  vector<int> xrange;
 
   width = image.size().width;
   height = image.size().height;
@@ -42,9 +42,9 @@ void on_trackbar_canny(int, void*){
 
   if(step < 1) step = 1;
   if(jitter < 1) jitter = 1;
-  
+
   // aqui esntra o pntilhismo
- 
+
   xrange.resize(height/step);
   yrange.resize(width/step);
 
@@ -59,8 +59,14 @@ void on_trackbar_canny(int, void*){
     yrange[i]= yrange[i]*step+step/2;
   }
 
+<<<<<<< HEAD
+image.copyTo(border);
+
+ // cannyPoints = Mat(height, width, CV_8U, Scalar(255));
+=======
   //cannyPoints = Mat(height, width, CV_8U, Scalar(255));
   cannyPoints = Mat(height,width, CV_8UC3, Scalar(255,255,255));
+>>>>>>> 6539df4d02d857c7d9d2001d5f8fb0fa4b9a36d9
 
   random_shuffle(xrange.begin(), xrange.end());
 
@@ -71,12 +77,22 @@ void on_trackbar_canny(int, void*){
       x = i+rand()%(2*jitter)-jitter+1;
       y = j+rand()%(2*jitter)-jitter+1;
 
+<<<<<<< HEAD
       gray = cannyImage.at<uchar>(x,y);
+=======
+<<<<<<< HEAD
+      gray = border.at<uchar>(x,y);
+
+      //usando circulo, mas poderia ser outro elemento
+=======
+      gray = image.at<uchar>(x,y);
+>>>>>>> 0ff667ffaa9e156a93ddf7f8acda806a032aaad0
 
       val[0] = (int)(image.at<Vec3b>(x,y)[2]);
       val[1] = (int)(image.at<Vec3b>(x,y)[1]);
       val[2] = (int)(image.at<Vec3b>(x,y)[0]);
  
+>>>>>>> 6539df4d02d857c7d9d2001d5f8fb0fa4b9a36d9
       circle(cannyPoints,
              cv::Point(y,x),
              raio,
@@ -84,23 +100,27 @@ void on_trackbar_canny(int, void*){
              -1,
              CV_AA);
     }
-  } 
+  }
 
   imshow("cannyPoints", cannyPoints);
-  
+
 }
 
-int main(int argc, char**argv){  
+int main(int argc, char**argv){
 
+<<<<<<< HEAD
+  image = imread(argv[1],CV_LOAD_IMAGE_GRAYSCALE);
+=======
   image = imread(argv[1],CV_LOAD_IMAGE_COLOR);  
   
   //image = imread(argv[1],CV_LOAD_IMAGE_GRAYSCALE);
+>>>>>>> 6539df4d02d857c7d9d2001d5f8fb0fa4b9a36d9
 
   //sprintf( TrackbarName, "Threshold inferior", top_slider_max );
 
   namedWindow("cannyPoints",1);
 
-  cvMoveWindow( "cannyPoints", image.cols, 0 );  
+  cvMoveWindow( "cannyPoints", image.cols, 0 );
 
   createTrackbar("Step", "cannyPoints",
                 &top_slider,
@@ -124,9 +144,9 @@ int main(int argc, char**argv){
 
   on_trackbar_canny(top_slider, 0 );
 
- 
-  
-  
+
+
+
   imwrite("cannyPoints.jpg", cannyPoints);
   waitKey();
   return 0;
