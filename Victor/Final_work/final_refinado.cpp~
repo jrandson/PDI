@@ -1,0 +1,167 @@
+#include <iostream>
+#include <opencv2/opencv.hpp>
+#include <cv.h>
+#include <highgui.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <list>
+#include <unistd.h>
+#include <vector>
+#include <algorithm>
+#include <values.h>
+
+using namespace cv;
+using namespace std;
+
+void gerar_valores(int vetor[],int tam, int amostras);
+void menor(int n, int m, float **mat, int *posic_x,int *posic_y,float *menorzao);
+
+int main(int argc, char** argv){
+    Mat image, new_image, sample_image;
+    int ncenter=8;
+    Vec3b val,val1;
+    int n_amostras=2000;
+    vector<Vec3f> centers;
+    vector<Vec3f> samples;
+    vector<int> indices(n_amostras);
+    vector<int> contador(0,ncenter);
+    vector<float> distancias(0,ncenter);
+    bool flag =false;
+
+    // numeros aleatorios para sorteio da amostra
+    int rndx, rndy;
+    int width, height;
+    srand(time(NULL));
+    //Passo 1  --> Carregar imagem colorida
+    image = imread(argv[1],CV_LOAD_IMAGE_COLOR);
+    image.copyTo(sample_image);
+    image.copyTo(new_image);
+    //Amostra da imagem
+    width=image.size().width;
+    height=image.size().height;
+
+    val[0] = 0;   //B
+    val[1] = 0;   //G
+    val[2] = 0; //R
+    val1 = val;
+
+    // realiza a amostragem
+    for(int i=0; i<n_amostras; i++){
+        rndx = rand()%image.rows;
+        rndy = rand()%image.cols;
+        val1 = image.at<Vec3b>(rndx, rndy);
+        samples[i][0] = val1[0];
+        samples[i][1] = val1[1];
+        samples[i][2] = val1[2];
+        indices[i] = i;
+    }
+    random_shuffle(indices.begin(), indices.end());
+    for(int i=0; i<ncenter; i++){
+        centers[i] = indices[i];
+    }
+    //indices guardam as posições dos centros.
+    //centros são as posições das amostras.
+
+    // roda o algoritmo
+    int niter=200;
+    float dist;
+    float aux=0;
+
+    for(int i=0; i<niter; i++){
+        //Amostras
+        for(int j=0;j<ncenter;j++ )
+            distancias[j] = 0;
+        for(int j=0; j<n_amostras; j++){
+            indices[j] = 0;
+            dist = MAXFLOAT;
+            //centroides
+            // procura os vizinhos mais proximos
+            for(int k=0; k<ncenter; k++){
+                //aux armazena a distancia entre o o ponto e os centroides
+                aux = sqrt(pow(samples[j][0] - samples[centers[k]][0],2)
+                        + pow(samples[j][1] - samples[centers[k]][1],2)
+                        + pow(samples[j][2] - samples[centers[k]][2],2));
+                if(aux < dist)
+                {
+                    dist = aux;
+                    //distancias[k] += dist;
+                    indices[j] = k;
+                }
+                // calcula distancia da amostra j
+                // para o centro k
+                // em indices[k] estarao os rotulos
+            }
+        }
+
+        // recalcula os novos centroides
+        for(int j=0;j<n_amostras;j++){
+            for(int k=0; k<ncenter;k++){
+                dist = distancias[k];
+                if(indices[j] == k){
+                    distancias[k]+=distancias[k];
+                    contador[k] += 1;
+                }
+            }
+        //medias da distancias de todos os pontos ate o centroide
+    }
+    for(int k=0; k<ncenter;k++){
+        distancias[k] = distancias[k]/contador[k];
+        if(distancias[k] > 442)
+            distancias[k] = distancias[k] % (float)442.0;
+    }
+    for(int k=0;k<ncenter;k++){
+        while(flag != true){
+            teste_x = rand() %255;
+            teste_y = rand() %255;
+            teste_z = rand() %255;
+            aux = sqrt(pow(teste_x,2.0) + pow(teste_y,2.0) + pow(teste_z,2.0));
+            erro = abs(aux - distancias[k]);
+            if(erro <= 100)
+            {
+                val[0] =(int) teste_x;
+                val[1] =(int) teste_y;
+                val[2] =(int) teste_z;
+                //Atualiza novo centroide
+                samples[centers[k]] = val;
+                flag = true;
+            }
+            else flag = false;
+        }
+        flag = true;
+    }
+    //centroides atualizados, repetir tudo novamente
+    system("clear");
+    cout<<"Calculando iteração: "<<i<<endl<<"Por favor Aguarde..."<<endl;
+
+}
+
+    //Aplicacao na imagem
+    for(int i=0;i<image.rows;i++){
+        for(int j=0;j<image.cols;j++){
+            dist =MAXFLOAT;
+            for(int k=0; k<ncenter; k++){
+                //aux armazena a distancia entre o o ponto e os centroides
+                val = new_image.at<Vec3b>(i,j);
+                aux = sqrt(pow(val[0] - samples[centers[k]][0],2)
+                        + pow(val[1] - samples[centers[k]][1],2)
+                        + pow(val[2] - samples[centers[k]][2],2));
+                if(aux < dist)
+                {
+                    dist = aux;
+                    val1[0] = samples[centers[k]][0];
+                    val1[1] = samples[centers[k]][1];
+                    val1[2] = samples[centers[k]][2];
+                    new_image.at<Vec3b>(i,j) = val1;
+                }
+            }
+        }
+    }
+    imshow("image_sample",image);
+    imshow("image_classify",new_image);
+    //imshow("centroides",);
+    waitKey();
+
+    return 0;
+}
+
+
