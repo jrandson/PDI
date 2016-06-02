@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <list>
+#include <unistd.h>
 
 using namespace cv;
 using namespace std;
@@ -17,7 +18,7 @@ int main(int argc, char** argv){
   Vec3b val,val1;
   int pos_centro_x, pos_centro_y;
   float minimo;
-  int n_amostras=100;
+  int n_amostras=200;
   int width, height, r_number_x,r_number_y,k;
   srand(time(NULL));
   //Passo 1  --> Carregar imagem colorida
@@ -44,6 +45,7 @@ int main(int argc, char** argv){
   }
 //amostra do centro da imagem
   sample_image.at<Vec3b>(300,300)=image.at<Vec3b>(300,300);
+
 //Definir pixels de amostra aleatoriamente
   for(int i=0;i<m_sampled.size().width;i++){
     for(int j=0;j<m_sampled.size().height;j++){
@@ -62,7 +64,7 @@ int main(int argc, char** argv){
 //K-Means
 //Definindo quantidade de clusters onde k define a quantidade de centroides ou clusters
 //Exemplo: se k = 32, Quantidade de centroides = 32*32 = 1024
-k = 10;
+k = 32;
 float teste_x,teste_y,teste_z,erro;
 bool flag=false;
 int azul, verde,vermelho;
@@ -171,6 +173,7 @@ for(int g=0;g<k;g++)
         }
     }
 }//*/
+
 //CAlculo da média de todos os pontos em cada centroide para selecionar um novo
 for(int i=0;i<k;i++)
 {
@@ -191,6 +194,7 @@ for(int i=0;i<k;i++)
         while(flag != true)
         {
             //cout<<flag<<endl;
+
             if(medias.at<double>(i,j) > 255)
             medias.at<double>(i,j) = 255;
             //cout<<medias.at<double>(i,j)<<endl;
@@ -199,9 +203,8 @@ for(int i=0;i<k;i++)
             teste_z = rand() %255;
             aux = sqrt(pow(teste_x,2.0) + pow(teste_y,2.0) + pow(teste_z,2.0));
             erro = abs(aux - medias.at<double>(i,j));
-            if(erro <= 200)
+            if(erro <= 100)
             {
-                //cout<<erro<<endl;
                 val[0] =(int) teste_x;
                 val[1] =(int) teste_y;
                 val[2] =(int) teste_z;
@@ -214,8 +217,12 @@ for(int i=0;i<k;i++)
     flag = false;
     }
 }
+//imshow("Atualizar_Centros",centers);
+//sleep(2);
 z++;
-cout<<z<<endl;
+system("clear");
+cout<<"Calculando "<<z<<" Iteração"<<endl<<"Aguarde..."<<endl;
+
 //Inicia tudo novamente
 }
 int classify[width][height];
@@ -280,6 +287,8 @@ for(int g=0;g<k;g++)
 //cout<<contadores<<endl;
   imshow("image_sample",image);
   imshow("image_classify",new_image);
+  imshow("centroides",centers);
+
 free(dist_p_to_c_local);
 free(dist_p_to_c_global);
 

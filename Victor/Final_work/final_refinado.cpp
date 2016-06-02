@@ -16,6 +16,7 @@ using namespace std;
 int main(int argc, char** argv){
     Mat image, new_image, sample_image;
     int niter=200,n_amostras=2000,ncenter=8;
+    
     cout<<"Por favor, Digite a quantidade de iterações para treinamento"<<endl;
     cin>>niter;
     cout<<"Por favor, Digite a quantidade de amostras"<<endl;

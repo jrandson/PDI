@@ -67,15 +67,15 @@ int main(int argc, char** argv){
   // abre a cÃ¢mera default
   
 
-  /*cap.open(0);
+  cap.open(0);
   if(!cap.isOpened())
     return -1;
 
   // captura uma imagem para recuperar as
   // informacoes de gravaÃ§Ã£o
-  cap >> image; */
+  cap >> image; 
 
- image = imread( argv[1] );
+ //image = imread( argv[1] );
 
   namedWindow(windowName, CV_WINDOW_AUTOSIZE);
   
@@ -115,7 +115,7 @@ int main(int argc, char** argv){
   Mat comps[2];
 
   for(;;){
-    //cap >> image;
+    cap >> image;
 
     for(int i=0; i<dft_M; i++){
       for(int j=0; j<dft_N; j++){
@@ -219,6 +219,7 @@ int main(int argc, char** argv){
 
     // normaliza a parte real para exibicao
     normalize(planos[0], planos[0], 0, 1, CV_MINMAX);
+    
     imshow(windowName, planos[0]);
  
     key = (char) waitKey(10);
