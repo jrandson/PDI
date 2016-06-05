@@ -15,15 +15,16 @@
 using namespace cv;
 using namespace std;
 Mat src_gray,src;
-int thresh = 200;
-int max_thresh = 200;
+int thresh = 100;
+int max_thresh = 100;
 RNG rng(12345);
-vector<vector<Point> > contornos;
+vector<vector<vector<Point> >> contornos;
 void thresh_callback(int, void*,int iteracoes );
 
 int main(int argc, char** argv){
     Mat image, new_image, sample_image;
     int niter=200,n_amostras=2000,ncenter=8;
+    Mat imagem_sep[ncenter];
     ofstream meu_arquivo;
 
     cout << "Por favor, Digite a quantidade de iterações para treinamento"<<endl;
@@ -32,6 +33,8 @@ int main(int argc, char** argv){
     cin >> n_amostras;
     cout << "Por favor, Digite a quantidade de cores que deseja obter"<<endl;
     cin >> ncenter;
+
+
 
     float dist;
     float aux = 0, aux2 = 0;
@@ -44,6 +47,11 @@ int main(int argc, char** argv){
     vector<int> indices(n_amostras,0);
     vector<int> contador(ncenter,0);
     vector<float> distancias(ncenter,0);
+
+
+    val[0] = 0;   //B
+    val[1] = 0;   //G
+    val[2] = 0;   //R
 
     bool flag =false;
     int int_aux=0;
@@ -64,6 +72,11 @@ int main(int argc, char** argv){
     //Amostra da imagem
     width=image.size().width;
     height=image.size().height;
+
+     for(int k = 0; k < ncenter; k++)
+    {
+        imagem_sep[k] = Mat(width, height, CV_8UC3, Scalar(0,0,0));
+    }
 
     val[0] = 0;   //B
     val[1] = 0;   //G
@@ -215,10 +228,9 @@ int main(int argc, char** argv){
     val[1] = 255;
     val[2] = 255;
 
-    //imshow("image_sample",image);
-    //imshow("image_classify",new_image);
+    imshow("image_sample",image);
+    imshow("image_classify",new_image);
 	//cout<<cores.size()<<endl;
-	getchar();
     for(int k = 0; k < ncenter; k++)
     {
         for(int i = 0; i < new_image.rows; i++)
@@ -237,34 +249,29 @@ int main(int argc, char** argv){
                 }
             }
         }
-    //imshow("image"+to_string(k),imageAux);
-    //imageAux.copyTo(cores[k]);
-    cores.push_back(imageAux);
-    imageAux.copyTo(cores[k]);
+    imageAux.copyTo(imagem_sep[k]);
         for(int i = 0; i < imageAux.rows; i++)
             for(int j = 0; j < imageAux.cols; j++)
                 imageAux.at<Vec3b>(i,j) = val;
     }
 
-for(int i = 0; i < cores.size(); i++)
-{
-    imshow("image"+to_string(i),cores[i]);
-}
-//out<<cores.size()<<endl;
-//Encontrando contornos nas imagens geradas
 
-for(int i = 0; i < cores.size(); i++)
+//Encontrando contornos nas imagens geradas
+//imshow("imggray",src_gray);
+for(int i = 0; i < ncenter; i++)
 {
-    cores[i].copyTo(src);
+    imagem_sep[i].copyTo(src);
     cvtColor( src, src_gray, CV_BGR2GRAY );
     blur( src_gray, src_gray, Size(3,3) );
-    //imshow("Preto e Branco"+to_string(i),src_gray);
+  //  imshow("Preto e Branco"+to_string(i),src_gray);
     //createTrackbar( " Canny thresh:", "Source", 200, 200, thresh_callback );
     thresh_callback( 0, 0 ,i);
 }
+//waitKey();
 
+cout<<contornos.size()<<endl;
 //Criação do arquivo .fig
-/*meu_arquivo.open("pdifile.fig");
+meu_arquivo.open("pdifile.fig");
 meu_arquivo << "#FIG 3.2"<<endl;
 meu_arquivo << "Landscape"<<endl;
 meu_arquivo << "Center"<<endl;
@@ -272,15 +279,26 @@ meu_arquivo << "Metric"<<endl;
 meu_arquivo << "A4" <<endl;
 meu_arquivo << "100"<<endl;
 meu_arquivo << "Single"<<endl;
-meu_arquivo << "-1"<<endl;
-
-
-meu_arquivo << ""<<endl;
-meu_arquivo << ""<<endl;
-meu_arquivo << ""<<endl;
-
+meu_arquivo << "-2"<<endl<<"1200 2"<<endl;
+for(int i=0;i<contornos.size();i++)
+{
+    for(int j=0;j<contornos[i].size();j++)
+    {
+        if(contornos[i][j].size() >= 6)
+        for(int k=0;k<contornos[i][j].size();k++)
+        {
+        rndx =  rand() %16;
+            if(k == 0){
+            meu_arquivo << "2 3 0 1 "<<rndx<<" 7 50 -1 -1 0.000 0 0 -1 0 0 ";
+            meu_arquivo << contornos[i][j].size()<<endl;
+            }
+            meu_arquivo << contornos[i][j][k].x<<" "<<contornos[i][j][k].y<<" ";
+        }
+        meu_arquivo << endl;
+    }
+    meu_arquivo << endl;
+}
 meu_arquivo.close();
-  */
 waitKey();
     return 0;
 }
@@ -300,14 +318,10 @@ void thresh_callback(int, void*,int iteracoes )
     Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
     drawContours( drawing, contours, i, color, 2, 8, hierarchy, 0, Point() );
  }
-
- cout<<contours.size()<<endl;
- for(int i=0;i<contours.size();i++){
-    cout<<"teste"<<endl;
-    }
-
+ contornos.push_back(contours);
+//cout<<contours[1][1]<<endl;
   /// Show in a window
-  namedWindow( "Contours", CV_WINDOW_AUTOSIZE );
+  //namedWindow( "Contours", CV_WINDOW_AUTOSIZE );
   //imshow( "Contours"+to_string(iteracoes), drawing );
 }
 
