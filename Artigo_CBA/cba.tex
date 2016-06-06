@@ -1,0 +1,137 @@
+\documentclass[conference,harvard,brazil,english]{sbatex}
+\usepackage[latin1]{inputenc}
+\usepackage{ae}
+%
+% LaTeX2e class SBATeX
+%
+% Versão 1.0 alpha
+%   Walter Fetter Lages
+%   w.fetter@ieee.org
+%
+% Este arquivo cba.tex é uma adaptação do arquivo revista.tex,
+% Versão: 1.0 alpha, desenvolvido por Maurício C. de Oliveira,
+% mcdeoliveira@ieee.org.
+%
+% As adaptações fazem com que, por default, sejam utilizadas
+% as opções adequadas para o formato do CBA ou SBAI, ao contrário do arquivo
+% revista.tex, que, por default, utiliza opções adequadas para o formato
+% da Revista da SBA.
+%
+%
+% --------------------------------------------------
+%
+% Para compilar este exemplo use a seqüência de comandos:
+%
+%     latex cba
+%     bibtex cba
+%     latex cba
+%     latex cba
+%
+% Para gerar um arquivo Postscript (.ps):
+%
+%     dvips -t a4 cba
+%
+% Para gerar um arquivo Portable Document Format (.pdf):
+%
+%     dvips -Ppdf -t a4 cba
+%     ps2pdf -dMaxSubsetPct=100 -dSubsetFonts=true -dEmbedAllFonts=true -dCompatibilityLevel=1.2 -sPAPERSIZE=a4 cba.ps
+%
+
+% --------------------------------------------------
+%  Estes comandos são necessários apenas para a
+%  a geração deste artigo exemplo. Eles não fazem
+%  parte do estilo SBATeX.
+% --------------------------------------------------
+\makeatletter
+\def\verbatim@font{\normalfont\ttfamily\footnotesize}
+\makeatother
+\usepackage{amsmath}
+% --------------------------------------------------
+
+
+\begin{document}
+
+% CABEÇALHO
+
+\title{Quantização de cores em imagens utilizando o classificador K-Means e OpenCv com C++}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% O processo de revisao do CBA 2014 sera DOUBLE BLIND, portanto NAO inclua
+% autores na versão que será submetida para revisão
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\author{Victor Afonso Sabino Simoes}{victorsabino@rocketmail.com}
+\address{Rua Teatrólogo Meira Pires 2357\\
+             Capim Macio\\
+             Natal, Rio Grande do Norte, Brasil}
+
+\author{José Randson da Cunha}{jrandson@gmail.com}
+\address{Avenida Senador Salgado Filho, Campus Universitário\\
+             Lagoa Nova\\
+             Natal, Rio Grande do Norte, Brasil}
+
+\twocolumn[
+
+\maketitle
+
+\selectlanguage{english}
+\begin{abstract}
+The present work will show how K-means classifier can be used to quantize colors with help of the library of images manipulation
+OpenCv e the programming language C++. The objective is use the informations contained in the images, to obtain, from the K-Means
+classifier, the reduction of the number of colors in the same. The reduction can help in the digital image processing of 
+many ways that will be explained later. 
+\end{abstract}
+
+\keywords{Quantization, RGB, K-Means.}
+
+\selectlanguage{brazil}
+\begin{abstract}
+  O presente trabalho irá mostrar como o classificador K-Means pode ser usado para quantizar cores com a ajuda da 
+  biblioteca de manipulação de imagens OpenCv e da linguagem de programação C++. O objetivo é usar as informações contidas nas
+  imagens, para obter, através do classificador K-Means, a redução da quantidade de cores presentes na mesma. Essa redução
+  pode ajudar no processamento digital de imagens de diversas formas, que serão explicadas posteriormente.
+\end{abstract}
+
+\keywords{Quantizacao, RGB, K-Means.}
+]
+% CONTRIBUIÇÃO
+
+\selectlanguage{brazil}
+
+\section{Introdução}
+Existem uma infinidade de problemas no mundo do processamento digital de imagens que podem ser resolvidos de maneira prática
+com o auxílio da ferramenta correta. A biblioteca de manipulação de imagens OpenCv oferece vários métodos prontos para serem
+usados nas mais diversas aplicações e totalmente documentado. A biblioteca está disponível para ser usada nas linguagens de 
+programação C++ e Python, nesse trabalho C++ foi escolhido. O classificador K-Means tem várias aplicações, e aqui ele será 
+usado para dimininuir a quantidade de cores existentes em uma imagem. Ele é basicamente um método de aprendizagem 
+não supervisionada no qual, nesse caso, as cores contidas em cada pixel serão usadas como ponto de partida de escolha das novas
+cores. 
+
+Após o processo de quantização de cores, elas serão separadas e aplicadas em um método do OpenCv para encontrar contornos, 
+as informações dos contornos são transformadas em polígonos e então gravados em um arquivo com extensao .fig. O formato XFig
+falar um pouco sobre o XFIG.
+
+
+\section{Referencial teórico}
+
+\subsection{Representação das cores}
+Para processar este arquivo via linha de comandos utiliza-se a
+sequência de comandos:
+
+\subsection{K-Means}
+
+\subsection{Formato Xfig}
+
+
+\section{Metodologia}
+
+\subsection{Problematização}
+
+\section{Conclusões}
+Liste suas conclusões nesta seção, em vez de sim-plesmente relatar o que foi feito.
+
+% BIBLIOGRAFIA
+\bibliography{exemplo}
+\end{document}
