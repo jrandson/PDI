@@ -25,7 +25,7 @@ int main(int argc, char** argv){
     Mat image, new_image, sample_image;
     int niter=200,n_amostras=2000,ncenter=8;
     Mat imagem_sep[ncenter];
-    ofstream meu_arquivo;
+    ofstream meu_arquivo, tabela;
 
     cout << "Por favor, Digite a quantidade de iterações para treinamento"<<endl;
     cin >> niter;
@@ -47,15 +47,16 @@ int main(int argc, char** argv){
     vector<int> indices(n_amostras,0);
     vector<int> contador(ncenter,0);
     vector<float> distancias(ncenter,0);
-
-
-    val[0] = 0;   //B
-    val[1] = 0;   //G
-    val[2] = 0;   //R
-
+    long int decnum, rem, quot;
+    char hexdecnum[100], auxdecnum[100];
+    int o=1, r=0, temp;
+    vector<int> fig_identifiers(ncenter);
+    vector<string> geral2(ncenter,"");
     bool flag =false;
     int int_aux=0;
     float teste_x, teste_y, teste_z, erro,max_valuea = 442;
+    vector<Mat> cores;
+    Mat imageAux(image.rows,image.cols,CV_8UC3, Scalar(255,255,255));
 
     // numeros aleatorios para sorteio da amostra
 
@@ -83,7 +84,8 @@ int main(int argc, char** argv){
     val[2] = 0;   //R
     val1 = val;
 
-    // realiza a amostragem
+    //Passo 2  --> Realizar Amostragem
+
     for(int i=0; i<n_amostras; i++){
 
         rndx = rand()%image.rows;
@@ -98,8 +100,8 @@ int main(int argc, char** argv){
         indices[i] = i;
     }
 
+    //Passo 3  --> Definir primeiros centroides aleatoriamente
     random_shuffle(indices.begin(), indices.end());
-
     //indices guardam as posições dos centros.
     //centros são as posições das amostras.
     for(int i=0; i<ncenter; i++){
@@ -107,23 +109,21 @@ int main(int argc, char** argv){
         centers[i] = indices[i];
     }
 
-    // roda o algoritmo
-    for(int i = 0; i < niter; i++){
+    //Passo 4  --> Executar Algoritmo K-Means
 
+    for(int i = 0; i < niter; i++){
+    //Passo 4.1  --> Calcular distancias entre os pontos e os centroides e achar o de menor distancia
+    //Com base nos níveis RGB
+    //Samples armazena os niveis em RGB das amostras da imagem
+    //Centroide armazena os niveis em RGB de cada centro
         for(int j = 0; j < n_amostras; j++){
             indices[j] = 0;
             dist = MAXFLOAT;
-
-            //centroides
-            // procura os vizinhos mais proximos
-
             for(int k=0; k<ncenter; k++){
-
                 int_aux = centers[k];
                 //aux armazena a distancia entre o ponto e os centroides
-
                 // calcula distancia da amostra j
-                // para o centro k
+                // para o centroide k
                 // em indices[k] estarao os rotulos
 
                 aux = sqrt(pow(samples[j][0] - centroide[k][0],2)
@@ -135,26 +135,25 @@ int main(int argc, char** argv){
                     indices[j] = k;
                 }
             }
-
             aux3 = indices[j];
             distancias[aux3] += dist;
             contador[aux3] += 1;
         }
-
-        // recalcula os novos centroides
-
+        //Passo 4.2  --> Recalcula novos centroides com base na média de distancias
+        //das amostras que estão indexadas aos centroides
         for(int k = 0; k < ncenter; k++){
             if(distancias[k] == 0 || contador[k] == 0){
                 continue;
             }
             else{
                 distancias[k] = distancias[k]/contador[k];
-                if(distancias[k] > max_valuea){
-                    distancias[k] = (int)distancias[k] % (int)max_valuea;
+                if(distancias[k] > 441){
+                    distancias[k] = 441;
                 }
             }
-
         }
+
+
         for(int k=0;k<ncenter;k++){
             while(flag != true){
 
@@ -179,44 +178,33 @@ int main(int argc, char** argv){
                     flag = false;
                 }
             }
-
             flag = false;
         }
-
+        //Passo 4.3--> Volta ao passo 4.1 até acabar o numero de iterações
         //centroides atualizados, repetir tudo novamente
         for(int j = 0;j < ncenter; j++){
             distancias[j] = 0;
+            contador[j]=0;
         }
+     }
 
-        system("clear");
-        cout << "Calculando iteração: "<<i<<endl<<"Se tiver com pressa pode ir dar uma volta..."<<endl;
-    }
+    //Passo 5--> Aplicação dos centroides na imagem original
 
-    //cria uma estrutura pra guardar cada cor encontrada
-    vector<Mat> cores;
-
-
-
-    //Aplicacao na imagem
-    //for(int k = 0; k < ncenter; k++){
-
-        Mat imageAux(image.rows,image.cols,CV_8UC3, Scalar(255,255,255));
-
-        for(int i=0;i<image.rows;i++){
+    for(int i=0;i<image.rows;i++){
         for(int j=0;j<image.cols;j++){
             dist =MAXFLOAT;
             for(int k=0; k<ncenter; k++){
                 //aux armazena a distancia entre o o ponto e os centroides
-                val = new_image.at<Vec3b>(i,j);
-                aux = sqrt(pow(val[0] - samples[centers[k]][0],2)
-                        + pow(val[1] - samples[centers[k]][1],2)
-                        + pow(val[2] - samples[centers[k]][2],2));
+                val = image.at<Vec3b>(i,j);
+                aux = sqrt(pow(val[0] - centroide[k][0],2)
+                        + pow(val[1] - centroide[k][1],2)
+                        + pow(val[2] - centroide[k][2],2));
                 if(aux < dist)
                 {
                     dist = aux;
-                    val1[0] = samples[centers[k]][0];
-                    val1[1] = samples[centers[k]][1];
-                    val1[2] = samples[centers[k]][2];
+                    val1[0] = centroide[k][0];
+                    val1[1] = centroide[k][1];
+                    val1[2] = centroide[k][2];
                     new_image.at<Vec3b>(i,j) = val1;
                 }
             }
@@ -230,14 +218,16 @@ int main(int argc, char** argv){
 
     imshow("image_sample",image);
     imshow("image_classify",new_image);
-	//cout<<cores.size()<<endl;
-    for(int k = 0; k < ncenter; k++)
+
+    //Passo 6--> Separação das cores da imagem classificada
+
+	for(int k = 0; k < ncenter; k++)
     {
         for(int i = 0; i < new_image.rows; i++)
         {
             for(int j = 0; j < new_image.cols; j++)
             {
-                auxiliar = samples[centers[k]];
+                auxiliar = centroide[k];
                 auxiliar2 = new_image.at<Vec3b>(i,j);
                 testea = auxiliar == auxiliar2;
                 if(testea)
@@ -255,31 +245,85 @@ int main(int argc, char** argv){
                 imageAux.at<Vec3b>(i,j) = val;
     }
 
+    //Passo 7--> Encontrando os contornos das imagens construidas do passo anterior
 
-//Encontrando contornos nas imagens geradas
-//imshow("imggray",src_gray);
 for(int i = 0; i < ncenter; i++)
 {
     imagem_sep[i].copyTo(src);
     cvtColor( src, src_gray, CV_BGR2GRAY );
     blur( src_gray, src_gray, Size(3,3) );
-  //  imshow("Preto e Branco"+to_string(i),src_gray);
-    //createTrackbar( " Canny thresh:", "Source", 200, 200, thresh_callback );
     thresh_callback( 0, 0 ,i);
 }
-//waitKey();
 
-cout<<contornos.size()<<endl;
-//Criação do arquivo .fig
+//Gambiarra para tirar os zeros que nao sao aceitos pelo fOpen
+for(int i=0;i<ncenter;i++)
+{
+val = centroide[i];
+    for(int j=0;j<3;j++)
+    {
+    if(val[j] == 0)
+    val[j] =1;
+
+    }
+    centroide[i] = val;
+}
+
+    //Passo 8--> Criação do arquivo no formato Xfig
+
+    //Passo 8.1--> Criando cores definidas pelos centroides
+
+for(int i=0;i<ncenter;i++)
+fig_identifiers[i] = i+32;
+
+for(int i=0;i<ncenter;i++)
+{
+    val = centroide[i];
+    for(int j=0;j<3;j++)
+    {
+            decnum = val[j];
+            quot = decnum;
+
+            while(quot!=0){
+                 temp = quot % 16;
+
+              if( temp < 10)
+                   temp =temp + 48;
+              else
+                 temp = temp + 55+32;
+
+              hexdecnum[o++]= temp;
+              quot = quot / 16;
+            }
+            for(int k=o-1,m=0;k>0;k--,m++)
+            {
+                auxdecnum[m]=hexdecnum[k];
+                r++;
+            }
+            for(int k=0;k<r;k++)
+            {
+                if(k==0 && r<2)
+                geral2[i]+="0";
+
+                geral2[i]+=auxdecnum[k];
+            }
+            o=1;
+            r=0;
+    }
+}
+
+    //Passo 8.2--> Criação do cabeçalho do arquivo e criação dos contornos gerados pelo Passo 7 .fig
+
 meu_arquivo.open("pdifile.fig");
 meu_arquivo << "#FIG 3.2"<<endl;
 meu_arquivo << "Landscape"<<endl;
 meu_arquivo << "Center"<<endl;
 meu_arquivo << "Metric"<<endl;
 meu_arquivo << "A4" <<endl;
-meu_arquivo << "100"<<endl;
+meu_arquivo << "1"<<endl;
 meu_arquivo << "Single"<<endl;
-meu_arquivo << "-2"<<endl<<"1200 2"<<endl;
+meu_arquivo << "-2"<<endl<<"100 2"<<endl;
+for(int i=0;i<ncenter;i++)
+meu_arquivo << "0 "<<fig_identifiers[i]<<" #0"<<geral2[i]<<endl;
 for(int i=0;i<contornos.size();i++)
 {
     for(int j=0;j<contornos[i].size();j++)
@@ -289,7 +333,7 @@ for(int i=0;i<contornos.size();i++)
         {
         rndx =  rand() %16;
             if(k == 0){
-            meu_arquivo << "2 3 0 1 "<<rndx<<" 7 50 -1 -1 0.000 0 0 -1 0 0 ";
+            meu_arquivo << "2 3 0 1 "<<fig_identifiers[i]<<" 7 50 -1 -1 0.000 0 0 -1 0 0 ";
             meu_arquivo << contornos[i][j].size()<<endl;
             }
             meu_arquivo << contornos[i][j][k].x<<" "<<contornos[i][j][k].y<<" ";
@@ -299,7 +343,9 @@ for(int i=0;i<contornos.size();i++)
     meu_arquivo << endl;
 }
 meu_arquivo.close();
-waitKey();
+
+
+//Fim
     return 0;
 }
 void thresh_callback(int, void*,int iteracoes )
@@ -319,10 +365,6 @@ void thresh_callback(int, void*,int iteracoes )
     drawContours( drawing, contours, i, color, 2, 8, hierarchy, 0, Point() );
  }
  contornos.push_back(contours);
-//cout<<contours[1][1]<<endl;
-  /// Show in a window
-  //namedWindow( "Contours", CV_WINDOW_AUTOSIZE );
-  //imshow( "Contours"+to_string(iteracoes), drawing );
 }
 
 
