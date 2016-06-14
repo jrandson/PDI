@@ -63,14 +63,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \author{Victor Afonso Sabino Simoes}{victorsabino@rocketmail.com}
-\address{Rua Teatrólogo Meira Pires 2357\\
-             Capim Macio\\
-             Natal, Rio Grande do Norte, Brasil}
-
 \author{José Randson da Cunha}{jrandson@gmail.com}
-\address{Avenida Senador Salgado Filho, Campus Universitário\\
-             Lagoa Nova\\
-             Natal, Rio Grande do Norte, Brasil}
 
 \twocolumn[
 
@@ -121,8 +114,52 @@ Para processar este arquivo via linha de comandos utiliza-se a
 sequência de comandos:
 
 \subsection{K-Means}
+	Em mineralçao de dados, é bastante comum o agrupamento de uma determinada quantidade de informações em uma quantidade específicas de grupos. Para este objetivo, é bastante comum o uso do algoritmo K-menas.
+
+	O K-means é um dos algoritmo de aprendizagem não supervisionada mas simples existentes, capaz de resolver problemas de clusterização. Clusterização é um procedimento no qual agrupa-se dados em diferentes categorias ou grupos chamados cluster. Estes clusters podem ser gerados a partir de centros previamente estabelecidos e a classificação é realizada gerando-se diferentes regiões no espaço de dados. O agrupamento é feito medindo-se a proximidade dos dados em relação a cada família de grupos. Essa distância pode ser calculada espacialmente e cuja métrica é a distnacia euclidiana, conforme a equação \ref{eq:dist_euc}
+
+	\begin{equation}
+		dist(p,q) = sqrt((px - qx)^2 + (py - qy)^2)
+		\label{eq:dist_euc}
+	\end{equation}
+
+
+	Para que a classificação possa acontecer, é preciso que se defina previamente que são fixados de acordo com análise previa dos dados e do objetivo que se tem em mente ao usar este algoritmo. Estes centros são posicionados de modo distantes um do outro, porque, quanto maior a distância entre eles, melhor será a classificação dos dados. Centros muito próximos podem causar imprecisão na classificação dos dados.
+
+\subsection{Vetorização de imagens}
+	Imagens vetorizadas são representadas por vetores matemáticos. Esta representação se baseia na formação da imagem a partir de figuras geométricas primitivas, como pontos, linhas, curvas e polígonos. Diferentemente de imagens geradas por mapas de bit – Bitmap, também conhecidas como raster, as imagens vetorizadas, por serem baseadas em vetores, são mais leves e não perdem qualidade ao terem suas dimensões ajustadas, pois há uma adequação do tamanho dos vetores à escala da imagem.
+	
+	É bastante comum que uma imagem vetorial seja criada a partir de uma imagem no formato raster por meio de procedimentos manuais e utilizado-se softwares de edição de imagem. A vetorização consiste em usar a imagem raster como referencia para desenhar os polígonos e linhas que irão gerar a imagem vetorizada. A figura \ref{fig:vetorizacao} mostra parte deste procedimento.
+
+	\begin{figure}[!ht]
+	  \caption{A picture of a gull.}
+	  \centering
+	    \includegraphics{images/vetorizacao}
+	    \label{fig:vetorizacao} 
+	\end{figure}
+
+
+Ao final do processo tem-se a imagem redesenhada a partir de linhas e figuras geométricas  descritas em formato vetorial, conforme pode-se ver na figura \ref{fig:face_done}
+	
+
+	    \includegraphics[]{images/dface_done}
+	    \label{fig:face_done}  
+
+
+\subsection{Segmentação de imagens}
+
+	O processo de segmentação de imagens digitais consiste na simplificação ou mudança na sua representação por meio de divisões  em múltiplas regiões de pixels ou objetos a fim de que sua análise seja facilitada. Uma imagem que possui, por exemplo, centenas de tonalidades diferentes pode ser mais facilmente analisada se houver uma redução na quantidade de tons em sua formação.
+
+	A segmentação utilizado neste trabalho é baseada em tonalidades. Deste modo, cada pixel é agrupado de acordo com a sua similaridade ou proximidade em relação a um pixel de referencia. Esta proximidade será definida por um limiar estabelecido como parâmetro do algoritmo de segmentação. O agrupamento gera como resultado diferentes regiões com diferenças significativas entre sí.
+
+	Por exemplo, pode-se definir que a distancia euclidiana entre as tonalidades encontradas em uma imagem e uma tonalidade de referencia não poderá ser maior do que $ref$ para ser agrupada no referido grupo.
+
+		$$dist =  \sqrt((r_{ref} - R)^2 + (g_{ref} - G)^2 + (b_{ref}- B)^2)$$
+
+	Todas as tonalidades para as quais $dist$ for menor ou igual a $ref$, serão agrupadas no mesmo grupo referente à tonalidade (r_{ref},g_{ref},b_{ref})
 
 \subsection{Formato Xfig}
+
 
 
 \section{Metodologia}
